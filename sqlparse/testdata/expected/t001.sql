@@ -1,0 +1,8 @@
+LineCommentToken:  [-- dialect: Oracle]
+OtherToken:  [SELECT]
+OtherToken:  [user]
+OtherToken:  [,]
+OtherToken:  [sysdate]
+OtherToken:  [FROM]
+OtherToken:  [dual]
+OtherToken:  [;]
