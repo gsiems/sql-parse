@@ -134,7 +134,31 @@ func ParseStatements(stmts string, dialect int) Tokens {
 			}
 		}
 	}
-	return tl
+	return parsePassTwo(tl, dialect)
+}
+
+func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
+
+	tlIn.Rewind()
+
+	for {
+		t := tlIn.Next()
+		s := t.Value()
+		if s == "" {
+			// nothing left to parse
+			break
+		}
+
+		tokenType := t.Type()
+		switch tokenType {
+		case NullToken, WhiteSpaceToken:
+			// do nothing
+		default:
+			tlOut.Push(t)
+		}
+	}
+
+	return tlOut
 }
 
 // isWhiteSpace determines whether or not the supplied character is
