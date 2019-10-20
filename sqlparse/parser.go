@@ -63,7 +63,7 @@ func ParseStatements(stmts string, dialect int) Tokens {
 			break
 		}
 
-		tokenType = tl.Type()
+		tokenType := tl.Type()
 		switch tokenType {
 		case BacktickQuotedToken, BracketQuotedToken, DoubleQuotedToken, SingleQuotedToken:
 			tl.Concat(s)
