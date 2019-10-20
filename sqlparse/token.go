@@ -21,6 +21,8 @@ const (
 	NumericToken
 	// LineCommentToken is an SQL end of line comment
 	LineCommentToken
+	// PoundLineCommentToken is an SQL end of line comment per MariaDB and MySQL
+	PoundLineCommentToken
 	// BlockCommentToken is an SQL block comment
 	BlockCommentToken
 	// SingleQuotedToken is a single quoted string
@@ -86,6 +88,7 @@ func typeName(t int) (s string) {
 		OtherToken:          "OtherToken",
 		SingleQuotedToken:   "SingleQuotedToken",
 		WhiteSpaceToken:     "WhiteSpaceToken",
+		PoundLineCommentToken: "PoundLineCommentToken",
 	}
 
 	if s, ok := typeNames[t]; ok {
