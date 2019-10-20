@@ -6,5 +6,3 @@ OtherToken:  [sysdate]
 OtherToken:  [FROM]
 OtherToken:  [dual]
 OtherToken:  [;]
-WhiteSpaceToken:  [
-]
