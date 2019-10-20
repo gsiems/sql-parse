@@ -154,7 +154,13 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 		case NullToken, WhiteSpaceToken:
 			// do nothing
 		default:
-			tlOut.Push(t)
+			if IsKeyword(s, dialect) {
+				// KeywordToken
+				tlOut.Push(t)
+				tlOut.UpdateType(KeywordToken)
+			} else {
+				tlOut.Push(t)
+			}
 		}
 	}
 
