@@ -115,6 +115,12 @@ func ParseStatements(stmts string, dialect int) Tokens {
 			} else if isWhiteSpace(s) {
 				tl.SetType(WhiteSpaceToken)
 				tl.Concat(s)
+			} else if s == "\\" {
+				cn := chrs.Next()
+				tl.Concat(s + cn.Value())
+			} else if strings.Contains("(),;", s) {
+				// start a new token regardless of the current state
+				tl.Extend(OtherToken)
 
 				// TODO ??
 				// IdentToken
@@ -127,7 +133,6 @@ func ParseStatements(stmts string, dialect int) Tokens {
 				tl.Concat(s)
 			}
 		}
-
 	}
 	return tl
 }
