@@ -17,6 +17,43 @@ func ParseStatements(stmts string, dialect int) Tokens {
 	var chrs Tokens
 	var tl Tokens
 
+	/*
+	   BacktickQuotedToken
+	   BlockCommentToken
+	   BracketQuotedToken
+	   DoubleQuotedToken
+	   IdentToken
+	   KeywordToken
+	   LabelToken
+	   LineCommentToken
+	   NullToken
+	   NumericToken
+	   OtherToken
+	   PoundLineCommentToken
+	   SingleQuotedToken
+	   WhiteSpaceToken
+	*/
+
+	var tokenStart = map[string]int{
+		"\"": DoubleQuotedToken,
+		"'":  SingleQuotedToken,
+		//"`":  BacktickQuotedToken,
+		//"/*": BlockCommentToken     ,
+		//"[":  BracketQuotedToken,
+		//"--": LineCommentToken      ,
+		//"#":  PoundLineCommentToken ,
+	}
+
+	var tokenEnd = map[int]string{
+		BacktickQuotedToken:   "`",
+		BlockCommentToken:     "*/",
+		BracketQuotedToken:    "]",
+		DoubleQuotedToken:     "\"",
+		LineCommentToken:      "\n",
+		PoundLineCommentToken: "\n",
+		SingleQuotedToken:     "'",
+	}
+
 	chrs.Init(stmts)
 	for {
 		ch := chrs.Next()
@@ -25,8 +62,71 @@ func ParseStatements(stmts string, dialect int) Tokens {
 			// nothing left to parse
 			break
 		}
-		// TODO: lots of stuff...
-		tl.Push(ch)
+
+		tokenType = tl.Type()
+		switch tokenType {
+		case BacktickQuotedToken, BracketQuotedToken, DoubleQuotedToken, SingleQuotedToken:
+			tl.Concat(s)
+			if te, ok := tokenEnd[tokenType]; ok {
+				if s == te {
+					tl.CloseToken()
+				}
+			}
+		case LineCommentToken, PoundLineCommentToken:
+			if s == "\n" {
+				tl.SetType(WhiteSpaceToken)
+			}
+			tl.Concat(s)
+		case BlockCommentToken:
+			if s == "*" && chrs.Peek() == "/" {
+				cn := chrs.Next()
+				tl.Concat(s + cn.Value())
+				tl.CloseToken()
+			} else {
+				// still in block comment
+				tl.Concat(s)
+			}
+
+		default:
+			if tt, ok := tokenStart[s]; ok {
+				// Standard single char start of token
+				// DoubleQuotedToken, SingleQuotedToken
+				tl.Extend(tt)
+				tl.Concat(s)
+			} else if s == "#" && (dialect == MySQL || dialect == MariaDB) {
+				tl.SetType(PoundLineCommentToken)
+				tl.Concat(s)
+			} else if s == "`" && (dialect == MySQL || dialect == MariaDB || dialect == SQLite) {
+				// SQLite in compatibility mode
+				tl.SetType(BacktickQuotedToken)
+				tl.Concat(s)
+			} else if s == "[" && (dialect == MSSQL || dialect == SQLite) {
+				// SQLite in compatibility mode
+				tl.SetType(BracketQuotedToken)
+				tl.Concat(s)
+			} else if s == "/" && chrs.Peek() == "*" {
+				tl.SetType(BlockCommentToken)
+				cn := chrs.Next()
+				tl.Concat(s + cn.Value())
+			} else if s == "-" && chrs.Peek() == "-" {
+				tl.SetType(LineCommentToken)
+				cn := chrs.Next()
+				tl.Concat(s + cn.Value())
+			} else if isWhiteSpace(s) {
+				tl.SetType(WhiteSpaceToken)
+				tl.Concat(s)
+
+				// TODO ??
+				// IdentToken
+				// KeywordToken
+				// LabelToken
+				// NumericToken
+			} else {
+				// Don't know (yet) what to do with it
+				tl.SetType(OtherToken)
+				tl.Concat(s)
+			}
+		}
 
 	}
 	return tl
