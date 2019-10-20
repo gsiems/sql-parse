@@ -43,6 +43,7 @@ const (
     // TODO: Add OperatorToken? Others?
 )
 
+// Token provides a single token with type information
 type Token struct {
 	tokenString       string // the portion of the SQL that the token contains
 	tokenType         int    // the indicator as to the kind of string that the token contains
