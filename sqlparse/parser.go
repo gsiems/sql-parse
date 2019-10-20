@@ -121,7 +121,7 @@ func ParseStatements(stmts string, dialect int) Tokens {
 			} else if strings.Contains("(),;", s) {
 				// start a new token regardless of the current state
 				tl.Extend(OtherToken)
-
+				tl.Concat(s)
 				// TODO ??
 				// IdentToken
 				// KeywordToken
