@@ -86,7 +86,7 @@ func (d *Tokens) Type() int {
 // from the current token. If no such token exists then the NullToken
 // value is returned.
 func (d *Tokens) TypeN(n int) (t int) {
-	if d.length > d.idx {
+	if d.tokenIsOpen && d.length > d.idx {
 		if d.idx+n >= 0 && d.length > d.idx+n {
 			return d.tokens[d.idx+n].tokenType
 		}
@@ -110,6 +110,16 @@ func (d *Tokens) Next() (t Token) {
 	}
 	return t
 }
+
+func (d *Tokens) tokenN(n int) (t Token) {
+	if d.length > d.idx {
+		if d.idx+n >= 0 && d.length > d.idx+n {
+			t = d.tokens[d.idx+n]
+		}
+	}
+	return t
+}
+
 
 // Peek returns the value of the current token in the list without
 // advancing the list to the next token. If no such token exists then
