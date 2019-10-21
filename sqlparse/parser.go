@@ -30,6 +30,7 @@ func ParseStatements(stmts string, dialect int) Tokens {
 	   LineCommentToken
 	   NullToken
 	   NumericToken
+	   OperatorToken
 	   OtherToken
 	   PoundLineCommentToken
 	   SingleQuotedToken
@@ -114,7 +115,7 @@ func ParseStatements(stmts string, dialect int) Tokens {
 				tl.SetType(LineCommentToken)
 				cn := chrs.Next()
 				tl.Concat(s + cn.Value())
-			} else if isWhiteSpace(s) {
+			} else if isWhiteSpaceChar(s) {
 				tl.SetType(WhiteSpaceToken)
 				tl.Concat(s)
 			} else if s == "\\" {
@@ -125,11 +126,6 @@ func ParseStatements(stmts string, dialect int) Tokens {
 				tl.Extend(OtherToken)
 				tl.Concat(s)
 				tl.CloseToken()
-				// TODO ??
-				// IdentToken
-				// KeywordToken
-				// LabelToken
-				// NumericToken
 			} else {
 				// Don't know (yet) what to do with it
 				tl.SetType(OtherToken)
@@ -156,16 +152,24 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 		switch tokenType {
 		case NullToken, WhiteSpaceToken:
 			// do nothing
+		case BacktickQuotedToken, BlockCommentToken, BracketQuotedToken, DoubleQuotedToken, LineCommentToken, PoundLineCommentToken, SingleQuotedToken:
+			tlOut.Push(t)
 		default:
+			// IdentToken
+			// KeywordToken
+			// LabelToken
+			// NumericToken
+			// OtherToken
+			// OperatorToken
 			if IsKeyword(s, dialect) {
 				// KeywordToken
 				tlOut.Push(t)
 				tlOut.UpdateType(KeywordToken)
-			} else if isNumeric(s) {
+			} else if isNumericString(s) {
 				// NumericToken
 				tlOut.Push(t)
 				tlOut.UpdateType(NumericToken)
-			} else if isIdent(s, dialect) {
+			} else if isIdentString(s, dialect) {
 				// IdentToken
 				tlOut.Push(t)
 				tlOut.UpdateType(IdentToken)
@@ -178,16 +182,16 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 	return tlOut
 }
 
-// isWhiteSpace determines whether or not the supplied character is
+// isWhiteSpaceChar determines whether or not the supplied character is
 // considered to be a white space character
-func isWhiteSpace(s string) bool {
+func isWhiteSpaceChar(s string) bool {
 	const wsChars = " \n\r\t"
 	return strings.Contains(wsChars, s)
 }
 
-// isNumeric determines whether or not the supplied string is
+// isNumericString determines whether or not the supplied string is
 // considered to be a valid number
-func isNumeric(s string) bool {
+func isNumericString(s string) bool {
 	const numChars = "0123456789."
 	// "."
 	// "E"
@@ -196,6 +200,12 @@ func isNumeric(s string) bool {
 	//   first can be +-. or digit
 	//   remainder can be . or digit
 	//   no more than one .
+
+	if len(s) == 1 {
+		if s == "+" || s == "-" {
+			return false
+		}
+	}
 
 	for _, element := range strings.Split(strings.ToUpper(s), "E") {
 
@@ -221,9 +231,9 @@ func isNumeric(s string) bool {
 	return true
 }
 
-// isIdent determines whether or not the supplied string is a valid
+// isIdentString determines whether or not the supplied string is a valid
 // identifier for an SQL identifier of the specified dialect
-func isIdent(s string, dialect int) bool {
+func isIdentString(s string, dialect int) bool {
 	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789"
 	const oraIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789#$"
 	const msIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789#$@"
