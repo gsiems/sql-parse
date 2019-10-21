@@ -41,8 +41,10 @@ const (
 	// KeywordToken is a string that matches an SQL (or PL) keyword
 	KeywordToken
 	// OtherToken is any string not identified as any other type of token
+	OperatorToken
+	// OperatorToken is a string that appears to be an operator
 	OtherToken
-    // TODO: Add OperatorToken? Others?
+	// TODO: Others?
 )
 
 // Token provides a single token with type information
@@ -75,19 +77,20 @@ func (t *Token) TypeName() (s string) {
 func typeName(t int) (s string) {
 
 	var typeNames = map[int]string{
-		BacktickQuotedToken: "BacktickQuotedToken",
-		BlockCommentToken:   "BlockCommentToken",
-		BracketQuotedToken:  "BracketQuotedToken",
-		DoubleQuotedToken:   "DoubleQuotedToken",
-		IdentToken:          "IdentToken",
-		KeywordToken:        "KeywordToken",
-		LabelToken:          "LabelToken",
-		LineCommentToken:    "LineCommentToken",
-		NullToken:           "NullToken",
-		NumericToken:        "NumericToken",
-		OtherToken:          "OtherToken",
-		SingleQuotedToken:   "SingleQuotedToken",
-		WhiteSpaceToken:     "WhiteSpaceToken",
+		BacktickQuotedToken:   "BacktickQuotedToken",
+		BlockCommentToken:     "BlockCommentToken",
+		BracketQuotedToken:    "BracketQuotedToken",
+		DoubleQuotedToken:     "DoubleQuotedToken",
+		IdentToken:            "IdentToken",
+		KeywordToken:          "KeywordToken",
+		LabelToken:            "LabelToken",
+		LineCommentToken:      "LineCommentToken",
+		NullToken:             "NullToken",
+		NumericToken:          "NumericToken",
+		OperatorToken:         "OperatorToken",
+		OtherToken:            "OtherToken",
+		SingleQuotedToken:     "SingleQuotedToken",
+		WhiteSpaceToken:       "WhiteSpaceToken",
 		PoundLineCommentToken: "PoundLineCommentToken",
 	}
 
