@@ -1,7 +1,9 @@
 // Package sqlparse attempts to parse SQL, or SQL like, strings into a list of tokens.
 package sqlparse
 
-import "strings"
+import (
+	"strings"
+)
 
 /*
 
@@ -122,6 +124,7 @@ func ParseStatements(stmts string, dialect int) Tokens {
 				// start a new token regardless of the current state
 				tl.Extend(OtherToken)
 				tl.Concat(s)
+				tl.CloseToken()
 				// TODO ??
 				// IdentToken
 				// KeywordToken
@@ -158,6 +161,14 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 				// KeywordToken
 				tlOut.Push(t)
 				tlOut.UpdateType(KeywordToken)
+			} else if isNumeric(s) {
+				// NumericToken
+				tlOut.Push(t)
+				tlOut.UpdateType(NumericToken)
+			} else if isIdent(s, dialect) {
+				// IdentToken
+				tlOut.Push(t)
+				tlOut.UpdateType(IdentToken)
 			} else {
 				tlOut.Push(t)
 			}
@@ -174,25 +185,70 @@ func isWhiteSpace(s string) bool {
 	return strings.Contains(wsChars, s)
 }
 
-// isNumeric determines whether or not the supplied character is
-// considered to be a numeric character
+// isNumeric determines whether or not the supplied string is
+// considered to be a valid number
 func isNumeric(s string) bool {
 	const numChars = "0123456789."
-	return strings.Contains(numChars, s)
+	// "."
+	// "E"
+	// split upper on "E"
+	// foreach check
+	//   first can be +-. or digit
+	//   remainder can be . or digit
+	//   no more than one .
+
+	for _, element := range strings.Split(strings.ToUpper(s), "E") {
+
+		if strings.Count(element, ".") > 1 {
+			return false
+		}
+
+		chr := strings.Split(element, "")
+		for i := 0; i < len(chr); i++ {
+			matches := strings.Contains(numChars, chr[i])
+
+			if !matches {
+				if i > 0 {
+					return false
+				}
+				if !(chr[i] == "+" || chr[i] == "-") {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
 }
 
-// isIdent determines whether or not the supplied character is a valid
-// character for an SQL identifier of the specified dialect
+// isIdent determines whether or not the supplied string is a valid
+// identifier for an SQL identifier of the specified dialect
 func isIdent(s string, dialect int) bool {
 	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789"
 	const oraIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789#$"
 	const msIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789#$@"
 
-	if dialect == Oracle {
-		return strings.Contains(oraIdentChars, s)
-	} else if dialect == MSSQL {
-		return strings.Contains(msIdentChars, s)
-	} else {
-		return strings.Contains(identChars, s)
+	// TODO: move this under dialects
+	// it really isn't wuite this simple...
+
+	chr := strings.Split(s, "")
+	for i := 0; i < len(chr); i++ {
+
+		matches := false
+
+		if dialect == Oracle {
+			// check for "starts with number, etc.?"
+			matches = strings.Contains(oraIdentChars, chr[i])
+		} else if dialect == MSSQL {
+			matches = strings.Contains(msIdentChars, chr[i])
+		} else {
+			matches = strings.Contains(identChars, chr[i])
+		}
+
+		if !matches && chr[i] != "." {
+			return false
+		}
 	}
+
+	return true
 }
