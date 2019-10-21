@@ -126,6 +126,9 @@ func ParseStatements(stmts string, dialect int) Tokens {
 				tl.Extend(OtherToken)
 				tl.Concat(s)
 				tl.CloseToken()
+			} else if isOperatorChar(s) {
+				tl.SetType(OperatorToken)
+				tl.Concat(s)
 			} else {
 				// Don't know (yet) what to do with it
 				tl.SetType(OtherToken)
@@ -187,6 +190,13 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 func isWhiteSpaceChar(s string) bool {
 	const wsChars = " \n\r\t"
 	return strings.Contains(wsChars, s)
+}
+
+// isOperatorChar determines whether or not the supplied character is
+// considered to be an operator character
+func isOperatorChar(s string) bool {
+	const opChars = "^~<=>|-!/@*&#%+"
+	return strings.Contains(opChars, s)
 }
 
 // isNumericString determines whether or not the supplied string is
