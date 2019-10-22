@@ -94,6 +94,24 @@ func (d *Tokens) TypeN(n int) (t int) {
 	return NullToken
 }
 
+// WhiteSpace returns the white space preceeding the current token. If
+// no such token exists then the empty string is returned.
+func (d *Tokens) WhiteSpace() string {
+	return d.WhiteSpaceN(0)
+}
+
+// WhiteSpaceN returns the white space preceeding the token in the list
+// that is distance N from the current token. If no such token exists
+// then the empty string is returned.
+func (d *Tokens) WhiteSpaceN(n int) string {
+	if d.tokenIsOpen && d.length > d.idx {
+		if d.idx+n >= 0 && d.length > d.idx+n {
+			return d.tokens[d.idx+n].leadingWhiteSpace
+		}
+	}
+	return ""
+}
+
 // Concat adds the supplied string to the end of current token
 func (d *Tokens) Concat(s string) {
 	if d.length > d.idx {
@@ -119,7 +137,6 @@ func (d *Tokens) tokenN(n int) (t Token) {
 	}
 	return t
 }
-
 
 // Peek returns the value of the current token in the list without
 // advancing the list to the next token. If no such token exists then
