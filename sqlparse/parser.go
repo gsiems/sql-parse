@@ -163,15 +163,57 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 			// LabelToken
 			// NumericToken
 			// OtherToken
-			// OperatorToken
 			if IsKeyword(s, dialect) {
 				// KeywordToken
 				tlOut.Push(t)
 				tlOut.UpdateType(KeywordToken)
 			} else if isNumericString(s) {
-				// NumericToken
-				tlOut.Push(t)
-				tlOut.UpdateType(NumericToken)
+				// By operator tokens previously and having queries
+				// with minimal whitespace the numbers, especially those
+				// in scientific notation are potentially split over
+				// several tokens.
+				//
+				// Unsigned numbers should be fine, including those in
+				// scientific notation.
+				//
+				// Signed numbers will, and those in scientific notation
+				// where the exponent is signed, need to be consolidated
+
+				// If the current numeric ends in an "E" and the next
+				// token is either "+" or "-" and the token after that is
+				// a number then join them
+				var tmp string
+				if strings.HasSuffix(strings.ToUpper(s), "E") {
+					if (tlIn.Peek() == "+" || tlIn.Peek() == "-") && tlIn.WhiteSpace() == "" {
+						if isNumericString(tlIn.PeekN(1)) && tlIn.WhiteSpaceN(1) == "" {
+							tn := tlIn.Next()
+							tmp = tn.Value()
+							tn = tlIn.Next()
+							tmp = tmp + tn.Value()
+						}
+					}
+				}
+
+				// If the previous token was a sign ("+" or "-") and the
+				// token prior to that was a keyword, comma, operator, or
+				// open paren then it is very unlikely that the signed
+				// token isn't part of the number (as opposed to being an
+				// arithmetic operation)
+				prevVal := tlOut.PeekN(-1)
+				prevType := tlOut.TypeN(-1)
+
+				if (prevType == KeywordToken || prevType == OperatorToken || prevVal == ",") && (tlOut.Peek() == "+" || tlOut.Peek() == "-") && t.WhiteSpace() == "" {
+					// Previous is part of NumericToken
+					tlOut.UpdateType(NumericToken)
+					tlOut.Concat(s + tmp)
+				} else {
+
+					// Current is NumericToken
+					tlOut.Push(t)
+					tlOut.UpdateType(NumericToken)
+					tlOut.Concat(tmp)
+
+				}
 			} else if isIdentString(s, dialect) {
 				// IdentToken
 				tlOut.Push(t)
@@ -207,14 +249,18 @@ func isNumericString(s string) bool {
 	// "E"
 	// split upper on "E"
 	// foreach check
-	//   first can be +-. or digit
-	//   remainder can be . or digit
-	//   no more than one .
+	//   first can be "+", "-", ".", or digit
+	//   remainder can be "." or digit
+	//   no more than one "." or "E"
 
 	if len(s) == 1 {
 		if s == "+" || s == "-" {
 			return false
 		}
+	}
+
+	if strings.Count(strings.ToUpper(s), "E") > 1 {
+		return false
 	}
 
 	for _, element := range strings.Split(strings.ToUpper(s), "E") {
