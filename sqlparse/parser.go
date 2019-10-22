@@ -40,11 +40,11 @@ func ParseStatements(stmts string, dialect int) Tokens {
 	var tokenStart = map[string]int{
 		"\"": DoubleQuotedToken,
 		"'":  SingleQuotedToken,
-		//"`":  BacktickQuotedToken,
-		//"/*": BlockCommentToken     ,
-		//"[":  BracketQuotedToken,
-		//"--": LineCommentToken      ,
-		//"#":  PoundLineCommentToken ,
+		//"`":  BacktickQuotedToken,   // dialect dependent
+		//"[":  BracketQuotedToken,    // dialect dependent
+		//"#":  PoundLineCommentToken, // dialect dependent
+		//"/*": BlockCommentToken,     // multi-char
+		//"--": LineCommentToken,      // multi-char
 	}
 
 	var tokenEnd = map[int]string{
@@ -155,8 +155,11 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 		switch tokenType {
 		case NullToken, WhiteSpaceToken:
 			// do nothing
-		case BacktickQuotedToken, BlockCommentToken, BracketQuotedToken, DoubleQuotedToken, LineCommentToken, PoundLineCommentToken, SingleQuotedToken:
+		case BacktickQuotedToken, BlockCommentToken, BracketQuotedToken, DoubleQuotedToken, LineCommentToken, SingleQuotedToken:
 			tlOut.Push(t)
+		case PoundLineCommentToken:
+			tlOut.Push(t)
+			tlOut.UpdateType(LineCommentToken)
 		default:
 			// IdentToken
 			// KeywordToken
@@ -176,12 +179,12 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 				// Unsigned numbers should be fine, including those in
 				// scientific notation.
 				//
-				// Signed numbers will, and those in scientific notation
-				// where the exponent is signed, need to be consolidated
-
+				// Signed numbers, and those in scientific notation where
+				// the exponent is signed, will need to be consolidated.
+				//
 				// If the current numeric ends in an "E" and the next
 				// token is either "+" or "-" and the token after that is
-				// a number then join them
+				// a number then join them.
 				var tmp string
 				if strings.HasSuffix(strings.ToUpper(s), "E") {
 					if (tlIn.Peek() == "+" || tlIn.Peek() == "-") && tlIn.WhiteSpace() == "" {
@@ -198,7 +201,7 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 				// token prior to that was a keyword, comma, operator, or
 				// open paren then it is very unlikely that the signed
 				// token isn't part of the number (as opposed to being an
-				// arithmetic operation)
+				// arithmetic operation).
 				prevVal := tlOut.PeekN(-1)
 				prevType := tlOut.TypeN(-1)
 
@@ -242,7 +245,7 @@ func isOperatorChar(s string) bool {
 }
 
 // isNumericString determines whether or not the supplied string is
-// considered to be a valid number
+// considered to be a valid number (or portion thereof)
 func isNumericString(s string) bool {
 	const numChars = "0123456789."
 	// "."
