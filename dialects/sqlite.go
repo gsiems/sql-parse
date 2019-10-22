@@ -210,3 +210,39 @@ func IsSQLiteReservedKeyword(s string) bool {
 	}
 	return false
 }
+
+// IsSQLiteIdentifier returns a boolean indicating if the supplied
+// string is considered to be a non-quoted PostgreSQL identifier.
+func IsSQLiteIdentifier(s string) bool {
+
+	// generally unknown...
+	// - cannot start with a number
+	// - alpha and underscore are okay
+	// - cannot contain dashes
+
+	// Just guessing:
+	const firstIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+
+	chr := strings.Split(s, "")
+	for i := 0; i < len(chr); i++ {
+
+		matches := false
+
+		if i == 0 {
+			matches = strings.Contains(firstIdentChars, chr[i])
+			if !matches {
+				return false
+			}
+
+		} else {
+			matches = strings.Contains(identChars, chr[i])
+			if !matches && chr[i] != "." {
+				return false
+			}
+
+		}
+	}
+
+	return true
+}

@@ -104,3 +104,25 @@ func IsReservedKeyword(s string, dialect int) bool {
 		return d.IsStandardReservedKeyword(s)
 	}
 }
+
+// IsIdentifier returns true if the supplied string is considered to be
+// a non-quoted identifier for the specified SQL dialect
+func IsIdentifier(s string, dialect int) bool {
+
+	switch dialect {
+	case PostgreSQL:
+		return d.IsPostgreSQLIdentifier(s)
+	case SQLite:
+		return d.IsSQLiteIdentifier(s)
+	case MySQL:
+		return d.IsMySQLIdentifier(s)
+	case Oracle:
+		return d.IsOracleIdentifier(s)
+	case MSSQL:
+		return d.IsMSSQLIdentifier(s)
+	case MariaDB:
+		return d.IsMariaDBIdentifier(s)
+	default:
+		return d.IsStandardIdentifier(s)
+	}
+}

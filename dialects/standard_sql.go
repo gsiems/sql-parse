@@ -723,3 +723,46 @@ func IsStandardReservedKeyword(s string) bool {
 	}
 	return false
 }
+
+// IsStandardIdentifier returns a boolean indicating if the supplied
+// string is considered to be a non-quoted Standard SQL identifier.
+func IsStandardIdentifier(s string) bool {
+
+	// not certain... but considering the PostgreSQL doumentation:
+	//
+	// "SQL identifiers and key words must begin with a letter (a-z, but
+	// also letters with diacritical marks and non-Latin letters) or an
+	// underscore (_). Subsequent characters in an identifier or key word
+	// can be letters, underscores, digits (0-9), or dollar signs ($).
+	// Note that dollar signs are not allowed in identifiers according to
+	// the letter of the SQL standard, so their use might render
+	// applications less portable. The SQL standard will not define a key
+	// word that contains digits or starts or ends with an underscore, so
+	// identifiers of this form are safe against possible conflict with
+	// future extensions of the standard."
+
+	const firstIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+
+	chr := strings.Split(s, "")
+	for i := 0; i < len(chr); i++ {
+
+		matches := false
+
+		if i == 0 {
+			matches = strings.Contains(firstIdentChars, chr[i])
+			if !matches {
+				return false
+			}
+
+		} else {
+			matches = strings.Contains(identChars, chr[i])
+			if !matches && chr[i] != "." {
+				return false
+			}
+
+		}
+	}
+
+	return true
+}

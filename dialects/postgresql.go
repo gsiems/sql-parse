@@ -474,3 +474,41 @@ func IsPostgreSQLReservedKeyword(s string) bool {
 	}
 	return false
 }
+
+// IsPostgreSQLIdentifier returns a boolean indicating if the supplied
+// string is considered to be a non-quoted PostgreSQL identifier.
+func IsPostgreSQLIdentifier(s string) bool {
+
+	// "SQL identifiers and key words must begin with a letter (a-z, but
+	// also letters with diacritical marks and non-Latin letters) or an
+	// underscore (_). Subsequent characters in an identifier or key word
+	// can be letters, underscores, digits (0-9), or dollar signs ($).
+	// Note that dollar signs are not allowed in identifiers according to
+	// the letter of the SQL standard, so their use might render
+	// applications less portable."
+
+	const firstIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$"
+
+	chr := strings.Split(s, "")
+	for i := 0; i < len(chr); i++ {
+
+		matches := false
+
+		if i == 0 {
+			matches = strings.Contains(firstIdentChars, chr[i])
+			if !matches {
+				return false
+			}
+
+		} else {
+			matches = strings.Contains(identChars, chr[i])
+			if !matches && chr[i] != "." {
+				return false
+			}
+
+		}
+	}
+
+	return true
+}

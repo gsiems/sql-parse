@@ -217,7 +217,7 @@ func parsePassTwo(tlIn Tokens, dialect int) (tlOut Tokens) {
 					tlOut.Concat(tmp)
 
 				}
-			} else if isIdentString(s, dialect) {
+			} else if IsIdentifier(s, dialect) {
 				// IdentToken
 				tlOut.Push(t)
 				tlOut.UpdateType(IdentToken)
@@ -240,6 +240,8 @@ func isWhiteSpaceChar(s string) bool {
 // isOperatorChar determines whether or not the supplied character is
 // considered to be an operator character
 func isOperatorChar(s string) bool {
+	// TODO: this may also need to move to dialects
+
 	const opChars = "^~<=>|-!/@*&#%+"
 	return strings.Contains(opChars, s)
 }
@@ -284,38 +286,6 @@ func isNumericString(s string) bool {
 					return false
 				}
 			}
-		}
-	}
-
-	return true
-}
-
-// isIdentString determines whether or not the supplied string is a valid
-// identifier for an SQL identifier of the specified dialect
-func isIdentString(s string, dialect int) bool {
-	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789"
-	const oraIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789#$"
-	const msIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789#$@"
-
-	// TODO: move this under dialects
-	// it really isn't wuite this simple...
-
-	chr := strings.Split(s, "")
-	for i := 0; i < len(chr); i++ {
-
-		matches := false
-
-		if dialect == Oracle {
-			// check for "starts with number, etc.?"
-			matches = strings.Contains(oraIdentChars, chr[i])
-		} else if dialect == MSSQL {
-			matches = strings.Contains(msIdentChars, chr[i])
-		} else {
-			matches = strings.Contains(identChars, chr[i])
-		}
-
-		if !matches && chr[i] != "." {
-			return false
 		}
 	}
 

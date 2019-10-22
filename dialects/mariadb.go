@@ -306,3 +306,42 @@ func IsMariaDBReservedKeyword(s string) bool {
 	}
 	return false
 }
+
+// IsMariaDBIdentifier returns a boolean indicating if the supplied
+// string is considered to be a non-quoted MariaDB identifier.
+func IsMariaDBIdentifier(s string) bool {
+
+	/*
+
+	   From the documentation:
+
+	   The following characters are valid, and allow identifiers to be unquoted:
+
+	       ASCII: [0-9,a-z,A-Z$_] (numerals 0-9, basic Latin letters, both lowercase and uppercase, dollar sign, underscore)
+	       Extended: U+0080 .. U+FFFF
+
+
+	      * Identifiers are stored as Unicode (UTF-8)
+	      * Identifiers may or may not be case-sensitive. See Indentifier Case-sensitivity.
+	      * Database, table and column names can't end with space characters
+	      * Identifier names may begin with a numeral, but can't only contain numerals unless quoted.
+	      * An identifier starting with a numeral, followed by an 'e', may be parsed as a floating point number, and needs to be quoted.
+	      * Identifiers are not permitted to contain the ASCII NUL character (U+0000) and supplementary characters (U+10000 and higher).
+	      * Names such as 5e6, 9e are not prohibited, but it's strongly recommended not to use them, as they could lead to ambiguity in certain contexts, being treated as a number or expression.
+	      * User variables cannot be used as part of an identifier, or as an identifier in an SQL statem
+	*/
+
+	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$"
+
+	chr := strings.Split(s, "")
+	for i := 0; i < len(chr); i++ {
+
+		matches := strings.Contains(identChars, chr[i])
+		if !matches && chr[i] != "." {
+			return false
+		}
+
+	}
+
+	return true
+}

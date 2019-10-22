@@ -389,3 +389,38 @@ func IsOracleReservedKeyword(s string) bool {
 	}
 	return false
 }
+
+// IsOracleIdentifier returns a boolean indicating if the supplied
+// string is considered to be a non-quoted Oracle identifier.
+func IsOracleIdentifier(s string) bool {
+
+	// - Nonquoted identifiers must begin with an alphabetic character
+	//    from the database character set.
+	// - Additonal characters may include numbers and the underscore (_),
+	//    dollar sign ($), and pound sign (#)
+
+	const firstIdentChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#$"
+
+	chr := strings.Split(s, "")
+	for i := 0; i < len(chr); i++ {
+
+		matches := false
+
+		if i == 0 {
+			matches = strings.Contains(firstIdentChars, chr[i])
+			if !matches {
+				return false
+			}
+
+		} else {
+			matches = strings.Contains(identChars, chr[i])
+			if !matches && chr[i] != "." {
+				return false
+			}
+
+		}
+	}
+
+	return true
+}
