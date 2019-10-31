@@ -191,14 +191,34 @@ var sqliteKeywords = map[string]bool{
 	"WITHOUT":           false,
 }
 
+var sqliteOperators = map[string]bool{
+	"~":  true,
+	"<":  true,
+	"<<": true,
+	"<=": true,
+	"<>": true,
+	"=":  true,
+	"==": true,
+	">":  true,
+	">=": true,
+	">>": true,
+	"|":  true,
+	"||": true,
+	"-":  true,
+	"!=": true,
+	"/":  true,
+	"*":  true,
+	"&":  true,
+	"%":  true,
+	"+":  true,
+}
+
 // IsSQLiteKeyword returns a boolean indicating if the supplied string
 // is considered to be a keyword in SQLite
 func IsSQLiteKeyword(s string) bool {
 
-	if _, ok := sqliteKeywords[strings.ToUpper(s)]; ok {
-		return true
-	}
-	return false
+	_, ok := sqliteKeywords[strings.ToUpper(s)]
+	return ok
 }
 
 // IsSQLiteReservedKeyword returns a boolean indicating if the supplied
@@ -209,6 +229,14 @@ func IsSQLiteReservedKeyword(s string) bool {
 		return val
 	}
 	return false
+}
+
+// IsSQLiteOperator returns a boolean indicating if the supplied string
+// is considered to be an operator in SQLite
+func IsSQLiteOperator(s string) bool {
+
+	_, ok := sqliteOperators[s]
+	return ok
 }
 
 // IsSQLiteIdentifier returns a boolean indicating if the supplied
@@ -227,16 +255,16 @@ func IsSQLiteIdentifier(s string) bool {
 	chr := strings.Split(s, "")
 	for i := 0; i < len(chr); i++ {
 
-		matches := false
+		//matches := false
 
 		if i == 0 {
-			matches = strings.Contains(firstIdentChars, chr[i])
+			matches := strings.Contains(firstIdentChars, chr[i])
 			if !matches {
 				return false
 			}
 
 		} else {
-			matches = strings.Contains(identChars, chr[i])
+			matches := strings.Contains(identChars, chr[i])
 			if !matches && chr[i] != "." {
 				return false
 			}

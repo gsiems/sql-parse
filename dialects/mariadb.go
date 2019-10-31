@@ -287,14 +287,31 @@ var mariadbKeywords = map[string]bool{
 	"ZEROFILL":            false,
 }
 
+var mariadbOperators = map[string]bool{
+	"<":   true,
+	"<=":  true,
+	"<=>": true,
+	"=":   true,
+	">":   true,
+	">=":  true,
+	"||":  true,
+	"-":   true,
+	":=":  true,
+	"!":   true,
+	"!=":  true,
+	"/":   true,
+	"*":   true,
+	"&&":  true,
+	"%":   true,
+	"+":   true,
+}
+
 // IsMariaDBKeyword returns a boolean indicating if the supplied string
 // is considered to be a keyword in MariaDB
 func IsMariaDBKeyword(s string) bool {
 
-	if _, ok := mariadbKeywords[strings.ToUpper(s)]; ok {
-		return true
-	}
-	return false
+	_, ok := mariadbKeywords[strings.ToUpper(s)]
+	return ok
 }
 
 // IsMariaDBReservedKeyword returns a boolean indicating if the supplied
@@ -305,6 +322,14 @@ func IsMariaDBReservedKeyword(s string) bool {
 		return val
 	}
 	return false
+}
+
+// IsMariaDBOperator returns a boolean indicating if the supplied string
+// is considered to be an operator in MariaDB
+func IsMariaDBOperator(s string) bool {
+
+	_, ok := mariadbOperators[strings.ToUpper(s)]
+	return ok
 }
 
 // IsMariaDBIdentifier returns a boolean indicating if the supplied

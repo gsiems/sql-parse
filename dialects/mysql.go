@@ -636,14 +636,40 @@ var mysqlKeywords = map[string]bool{
 	"ZEROFILL":                      true,
 }
 
+var mysqlOperators = map[string]bool{
+	"^":   true,
+	"~":   true,
+	"<":   true,
+	"<<":  true,
+	"<=":  true,
+	"<=>": true,
+	"<>":  true,
+	"=":   true,
+	">":   true,
+	">=":  true,
+	">>":  true,
+	"|":   true,
+	"||":  true,
+	"-":   true,
+	"->":  true,
+	"->>": true,
+	":=":  true,
+	"!":   true,
+	"!=":  true,
+	"/":   true,
+	"*":   true,
+	"&":   true,
+	"&&":  true,
+	"%":   true,
+	"+":   true,
+}
+
 // IsMySQLKeyword returns a boolean indicating if the supplied string
 // is considered to be a keyword in MySQL
 func IsMySQLKeyword(s string) bool {
 
-	if _, ok := mysqlKeywords[strings.ToUpper(s)]; ok {
-		return true
-	}
-	return false
+	_, ok := mysqlKeywords[strings.ToUpper(s)]
+	return ok
 }
 
 // IsMySQLReservedKeyword returns a boolean indicating if the supplied
@@ -656,22 +682,30 @@ func IsMySQLReservedKeyword(s string) bool {
 	return false
 }
 
+// IsMySQLOperator returns a boolean indicating if the supplied string
+// is considered to be an operator in MySQL
+func IsMySQLOperator(s string) bool {
+
+	_, ok := mysqlOperators[s]
+	return ok
+}
+
 // IsMySQLIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted MySQL identifier.
 func IsMySQLIdentifier(s string) bool {
 
-/*
+	/*
 
-From the documentation:
+	   From the documentation:
 
-* Permitted characters in unquoted identifiers:
-    ASCII: [0-9,a-z,A-Z$_] (basic Latin letters, digits 0-9, dollar, underscore)
-    Extended: U+0080 .. U+FFFF
-* ASCII NUL (U+0000) and supplementary characters (U+10000 and higher) are not permitted in quoted or unquoted identifiers.
-* Identifiers may begin with a digit but unless quoted may not consist solely of digits.
-* Database, table, and column names cannot end with space characters.
+	   * Permitted characters in unquoted identifiers:
+	       ASCII: [0-9,a-z,A-Z$_] (basic Latin letters, digits 0-9, dollar, underscore)
+	       Extended: U+0080 .. U+FFFF
+	   * ASCII NUL (U+0000) and supplementary characters (U+10000 and higher) are not permitted in quoted or unquoted identifiers.
+	   * Identifiers may begin with a digit but unless quoted may not consist solely of digits.
+	   * Database, table, and column names cannot end with space characters.
 
-*/
+	*/
 
 	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$"
 

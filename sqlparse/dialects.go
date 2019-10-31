@@ -126,3 +126,25 @@ func IsIdentifier(s string, dialect int) bool {
 		return d.IsStandardIdentifier(s)
 	}
 }
+
+// IsOperator returns true if the supplied string is considered to be
+// an Operator in the specified SQL dialect
+func IsOperator(s string, dialect int) bool {
+
+	switch dialect {
+	case PostgreSQL:
+		return d.IsPostgreSQLOperator(s)
+	case SQLite:
+		return d.IsSQLiteOperator(s)
+	case MySQL:
+		return d.IsMySQLOperator(s)
+	case Oracle:
+		return d.IsOracleOperator(s)
+	case MSSQL:
+		return d.IsMSSQLOperator(s)
+	case MariaDB:
+		return d.IsMariaDBOperator(s)
+	default:
+		return d.IsStandardOperator(s)
+	}
+}

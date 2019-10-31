@@ -704,14 +704,29 @@ var sqlStandardKeywords = map[string]bool{
 	"YEAR":                             true,
 }
 
+var sqlStandardOperators = map[string]bool{
+	"+":  true,
+	"-":  true,
+	"*":  true,
+	"/":  true,
+	"%":  true,
+	"=":  true,
+	"!=": true,
+	"<>": true,
+	">":  true,
+	"<":  true,
+	">=": true,
+	"<=": true,
+	"!<": true,
+	"!>": true,
+}
+
 // IsStandardKeyword returns a boolean indicating if the supplied string
 // is considered to be a keyword in ISO standared SQL
 func IsStandardKeyword(s string) bool {
 
-	if _, ok := sqlStandardKeywords[strings.ToUpper(s)]; ok {
-		return true
-	}
-	return false
+	_, ok := sqlStandardKeywords[strings.ToUpper(s)]
+	return ok
 }
 
 // IsStandardReservedKeyword returns a boolean indicating if the supplied
@@ -722,6 +737,14 @@ func IsStandardReservedKeyword(s string) bool {
 		return val
 	}
 	return false
+}
+
+// IsStandardOperator returns a boolean indicating if the supplied string
+// is considered to be an operator in ISO standard SQL
+func IsStandardOperator(s string) bool {
+
+	_, ok := sqlStandardOperators[s]
+	return ok
 }
 
 // IsStandardIdentifier returns a boolean indicating if the supplied
@@ -747,16 +770,16 @@ func IsStandardIdentifier(s string) bool {
 	chr := strings.Split(s, "")
 	for i := 0; i < len(chr); i++ {
 
-		matches := false
+		//matches := false
 
 		if i == 0 {
-			matches = strings.Contains(firstIdentChars, chr[i])
+			matches := strings.Contains(firstIdentChars, chr[i])
 			if !matches {
 				return false
 			}
 
 		} else {
-			matches = strings.Contains(identChars, chr[i])
+			matches := strings.Contains(identChars, chr[i])
 			if !matches && chr[i] != "." {
 				return false
 			}

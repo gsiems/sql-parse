@@ -202,14 +202,42 @@ var mssqlKeywords = map[string]bool{
 	"WRITETEXT":                      false,
 }
 
+var mssqlOperators = map[string]bool{
+	"^":  true,
+	"^=": true,
+	"~":  true,
+	"<":  true,
+	"<=": true,
+	"<>": true,
+	"=":  true,
+	">":  true,
+	">=": true,
+	"|":  true,
+	"|=": true,
+	"-":  true,
+	"-=": true,
+	"::": true,
+	"!<": true,
+	"!=": true,
+	"!>": true,
+	"/":  true,
+	"/=": true,
+	"*":  true,
+	"*=": true,
+	"&":  true,
+	"&=": true,
+	"%":  true,
+	"%=": true,
+	"+":  true,
+	"+=": true,
+}
+
 // IsMSSQLKeyword returns a boolean indicating if the supplied string
 // is considered to be a keyword in MS-SQL
 func IsMSSQLKeyword(s string) bool {
 
-	if _, ok := mssqlKeywords[strings.ToUpper(s)]; ok {
-		return true
-	}
-	return false
+	_, ok := mssqlKeywords[strings.ToUpper(s)]
+	return ok
 }
 
 // IsMSSQLReservedKeyword returns a boolean indicating if the supplied
@@ -222,33 +250,41 @@ func IsMSSQLReservedKeyword(s string) bool {
 	return false
 }
 
+// IsMSSQLOperator returns a boolean indicating if the supplied string
+// is considered to be an operator in MSSQL
+func IsMSSQLOperator(s string) bool {
+
+	_, ok := mssqlOperators[s]
+	return ok
+}
+
 // IsMSSQLIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted MSSQL identifier.
 func IsMSSQLIdentifier(s string) bool {
 
 	/*
 
-	From the documentstion found:
+		From the documentstion found:
 
-	   The first character must be one of the following:
+		   The first character must be one of the following:
 
-	       A letter as defined by the Unicode Standard 3.2. The Unicode
-	       definition of letters includes Latin characters from a through
-	       z, from A through Z, and also letter characters from other
-	       languages.
+		       A letter as defined by the Unicode Standard 3.2. The Unicode
+		       definition of letters includes Latin characters from a through
+		       z, from A through Z, and also letter characters from other
+		       languages.
 
-	       The underscore (_), at sign (@), or number sign (#).
+		       The underscore (_), at sign (@), or number sign (#).
 
-	   ...
+		   ...
 
-	   Subsequent characters can include the following:
-	       Letters as defined in the Unicode Standard 3.2.
-	       Decimal numbers from either Basic Latin or other national scripts.
-	       The at sign, dollar sign ($), number sign, or underscore.
+		   Subsequent characters can include the following:
+		       Letters as defined in the Unicode Standard 3.2.
+		       Decimal numbers from either Basic Latin or other national scripts.
+		       The at sign, dollar sign ($), number sign, or underscore.
 
-	       Embedded spaces or special characters are not allowed.
+		       Embedded spaces or special characters are not allowed.
 
-	       Supplementary characters are not allowed.
+		       Supplementary characters are not allowed.
 
 	*/
 
@@ -258,16 +294,16 @@ func IsMSSQLIdentifier(s string) bool {
 	chr := strings.Split(s, "")
 	for i := 0; i < len(chr); i++ {
 
-		matches := false
+		//matches := false
 
 		if i == 0 {
-			matches = strings.Contains(firstIdentChars, chr[i])
+			matches := strings.Contains(firstIdentChars, chr[i])
 			if !matches {
 				return false
 			}
 
 		} else {
-			matches = strings.Contains(identChars, chr[i])
+			matches := strings.Contains(identChars, chr[i])
 			if !matches && chr[i] != "." {
 				return false
 			}

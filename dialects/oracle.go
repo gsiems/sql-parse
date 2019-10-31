@@ -370,14 +370,30 @@ var oracleKeywords = map[string]bool{
 	"XOR":            false,
 }
 
+var oracleOperators = map[string]bool{
+	"^=":  true,
+	"<=":  true,
+	"<":   true,
+	"=":   true,
+	">=":  true,
+	">":   true,
+	"¬=":  true,
+	"||":  true,
+	"-":   true,
+	":=":  true,
+	"!=":  true,
+	"/":   true,
+	"(+)": true,
+	"*":   true,
+	"+":   true,
+}
+
 // IsOracleKeyword returns a boolean indicating if the supplied string
 // is considered to be a keyword in Oracle
 func IsOracleKeyword(s string) bool {
 
-	if _, ok := oracleKeywords[strings.ToUpper(s)]; ok {
-		return true
-	}
-	return false
+	_, ok := oracleKeywords[strings.ToUpper(s)]
+	return ok
 }
 
 // IsOracleReservedKeyword returns a boolean indicating if the supplied
@@ -388,6 +404,14 @@ func IsOracleReservedKeyword(s string) bool {
 		return val
 	}
 	return false
+}
+
+// IsOracleOperator returns a boolean indicating if the supplied string
+// is considered to be an operator in Oracle
+func IsOracleOperator(s string) bool {
+
+	_, ok := oracleOperators[s]
+	return ok
 }
 
 // IsOracleIdentifier returns a boolean indicating if the supplied
@@ -405,16 +429,16 @@ func IsOracleIdentifier(s string) bool {
 	chr := strings.Split(s, "")
 	for i := 0; i < len(chr); i++ {
 
-		matches := false
+		//matches := false
 
 		if i == 0 {
-			matches = strings.Contains(firstIdentChars, chr[i])
+			matches := strings.Contains(firstIdentChars, chr[i])
 			if !matches {
 				return false
 			}
 
 		} else {
-			matches = strings.Contains(identChars, chr[i])
+			matches := strings.Contains(identChars, chr[i])
 			if !matches && chr[i] != "." {
 				return false
 			}
