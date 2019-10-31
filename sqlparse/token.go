@@ -40,9 +40,11 @@ const (
 	LabelToken
 	// KeywordToken is a string that matches an SQL (or PL) keyword
 	KeywordToken
-	// OtherToken is any string not identified as any other type of token
-	OperatorToken
 	// OperatorToken is a string that appears to be an operator
+	OperatorToken
+	// BindParameterToken
+	BindParameterToken
+	// OtherToken is any string not identified as any other type of token
 	OtherToken
 	// TODO: Others?
 )
@@ -78,6 +80,7 @@ func typeName(t int) (s string) {
 
 	var typeNames = map[int]string{
 		BacktickQuotedToken:   "BacktickQuotedToken",
+		BindParameterToken:    "BindParameterToken",
 		BlockCommentToken:     "BlockCommentToken",
 		BracketQuotedToken:    "BracketQuotedToken",
 		DoubleQuotedToken:     "DoubleQuotedToken",
@@ -89,9 +92,9 @@ func typeName(t int) (s string) {
 		NumericToken:          "NumericToken",
 		OperatorToken:         "OperatorToken",
 		OtherToken:            "OtherToken",
+		PoundLineCommentToken: "PoundLineCommentToken",
 		SingleQuotedToken:     "SingleQuotedToken",
 		WhiteSpaceToken:       "WhiteSpaceToken",
-		PoundLineCommentToken: "PoundLineCommentToken",
 	}
 
 	if s, ok := typeNames[t]; ok {
