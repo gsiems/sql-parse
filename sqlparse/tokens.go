@@ -112,6 +112,15 @@ func (d *Tokens) WhiteSpaceN(n int) string {
 	return ""
 }
 
+// SetWhiteSpace sets the whitespace for the current token
+func (d *Tokens) SetWhiteSpace(ws string) {
+	if d.length > d.idx {
+		if d.idx >= 0 && d.length > d.idx {
+			d.tokens[d.idx].leadingWhiteSpace = ws
+		}
+	}
+}
+
 // Concat adds the supplied string to the end of current token
 func (d *Tokens) Concat(s string) {
 	if d.length > d.idx {

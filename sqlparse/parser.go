@@ -193,7 +193,7 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 				continue
 			}
 
-			// by this point all that *should* be left is:
+			// by this point all that *should* be left are:
 			//  - tagging labels,
 			//  - tagging bind variable placeholders,
 			//  - unquoted identifiers not flagged earlier (since that check may be too simplistic), and
@@ -202,6 +202,7 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 
 			remainder := s
 			var s2 string
+			ws := t.WhiteSpace()
 			for {
 				s2, remainder = splitOnOperator(remainder, dialect)
 
@@ -214,7 +215,14 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 						tlOut.Extend(OtherToken)
 					}
 
-					// leading white space?
+					// leading white space
+					if ws != "" {
+						tlOut.SetWhiteSpace(ws)
+						ws = ""
+					} else {
+						tlOut.SetWhiteSpace(" ")
+					}
+
 					tlOut.Concat(s2)
 					tlOut.CloseToken()
 				}
