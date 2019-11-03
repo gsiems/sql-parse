@@ -200,48 +200,28 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 			//  - parsing those strings where there was no space before
 			//      and/or after an operator
 
-			// The following really could be more elegant
-			pre, op, post := splitOnOperator(s, dialect)
-			if pre != "" {
-				tt := chkTokenString(pre, dialect)
-				switch tt {
-				case KeywordToken, OperatorToken, NumericToken, IdentToken:
-					tlOut.Extend(tt)
-				default:
-					tlOut.Extend(OtherToken)
+			remainder := s
+			var s2 string
+			for {
+				s2, remainder = splitOnOperator(remainder, dialect)
+
+				if s2 != "" {
+					tt := chkTokenString(s2, dialect)
+					switch tt {
+					case KeywordToken, OperatorToken, NumericToken, IdentToken:
+						tlOut.Extend(tt)
+					default:
+						tlOut.Extend(OtherToken)
+					}
+
+					// leading white space?
+					tlOut.Concat(s2)
+					tlOut.CloseToken()
 				}
 
-				// leading white space?
-				tlOut.Concat(pre)
-				tlOut.CloseToken()
-			}
-
-			if op != "" {
-				tt := chkTokenString(op, dialect)
-				switch tt {
-				case KeywordToken, OperatorToken, NumericToken, IdentToken:
-					tlOut.Extend(tt)
-				default:
-					tlOut.Extend(OtherToken)
+				if remainder == "" {
+					break
 				}
-
-				// leading white space?
-				tlOut.Concat(op)
-				tlOut.CloseToken()
-			}
-
-			if post != "" {
-				tt := chkTokenString(pre, dialect)
-				switch tt {
-				case KeywordToken, OperatorToken, NumericToken, IdentToken:
-					tlOut.Extend(tt)
-				default:
-					tlOut.Extend(OtherToken)
-				}
-
-				// leading white space?
-				tlOut.Concat(post)
-				tlOut.CloseToken()
 			}
 
 		default:
@@ -252,11 +232,11 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 	return tlOut
 }
 
-func splitOnOperator(s string, dialect int) (pre, op, post string) {
+func splitOnOperator(s string, dialect int) (pre, remainder string) {
 
 	maxOperatorLen := 3
 	maxLen := maxOperatorLen
-	pre = s // just in case no operator is found
+	pre = s
 
 	// search for operators starting with the longest possible operator
 	if maxLen > len(s) {
@@ -267,19 +247,23 @@ func splitOnOperator(s string, dialect int) (pre, op, post string) {
 			continue
 		}
 
-		for j := 0; j < len(s)-i; j++ {
+		for j := 0; j <= len(s)-i; j++ {
 
 			var tstOp string
-			if len(s)-i == 1 {
+			if i == 1 {
 				tstOp = string(s[j])
 			} else {
 				tstOp = s[j : j+i]
 			}
 
 			if IsOperator(tstOp, dialect) {
-				pre = s[0:j]
-				op = tstOp
-				post = s[j+i:]
+				if j == 0 {
+					pre = tstOp
+					remainder = s[len(pre):]
+				} else {
+					pre = s[0:j]
+					remainder = s[j:]
+				}
 				return
 			}
 		}
