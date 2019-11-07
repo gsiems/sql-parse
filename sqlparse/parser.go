@@ -200,9 +200,15 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 			//  - parsing those strings where there was no space before
 			//      and/or after an operator
 
-			if IsLabel (s, dialect) {
+			if IsLabel(s, dialect) {
 				tlOut.Push(t)
 				tlOut.UpdateType(LabelToken)
+				continue
+			}
+
+			if isBindVar(s) {
+				tlOut.Push(t)
+				tlOut.UpdateType(BindParameterToken)
 				continue
 			}
 
@@ -215,7 +221,7 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 				if s2 != "" {
 					tt := chkTokenString(s2, dialect)
 					switch tt {
-					case KeywordToken, OperatorToken, NumericToken, IdentToken:
+					case KeywordToken, OperatorToken, NumericToken, IdentToken, BindParameterToken:
 						tlOut.Extend(tt)
 					default:
 						tlOut.Extend(OtherToken)
@@ -338,6 +344,10 @@ func chkTokenString(s string, dialect int) (d int) {
 		return IdentToken
 	}
 
+	if isBindVar(s) {
+		return BindParameterToken
+	}
+
 	return NullToken
 }
 
@@ -401,4 +411,25 @@ func isNumber(s string) bool {
 	}
 
 	return true
+}
+
+func isBindVar(s string) bool {
+	// bind variables?
+	// :x
+	// ?
+	// $x
+	// other?
+
+	if s == "?" {
+		return true
+	}
+	if len(s) > 1 {
+		if string(s[0]) == ":" && strings.Count(s, ":") == 1 {
+			return true
+		}
+		if string(s[0]) == "$" && strings.Count(s, "$") == 1 {
+			return true
+		}
+	}
+	return false
 }
