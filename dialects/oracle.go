@@ -414,6 +414,24 @@ func IsOracleOperator(s string) bool {
 	return ok
 }
 
+// IsOracleLabel returns a boolean indicating if the supplied string
+// is considered to be a label in Oracle
+func IsOracleLabel(s string) bool {
+	if len(s) < 5 {
+		return false
+	}
+	if s[0:2] != "<<" {
+		return false
+	}
+	if s[len(s)-2:len(s)] != ">>" {
+		return false
+	}
+	if IsOracleIdentifier(s[2 : len(s)-2]) {
+		return true
+	}
+	return false
+}
+
 // IsOracleIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted Oracle identifier.
 func IsOracleIdentifier(s string) bool {

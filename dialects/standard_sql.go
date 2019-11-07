@@ -747,6 +747,12 @@ func IsStandardOperator(s string) bool {
 	return ok
 }
 
+// IsStandardLabel returns a boolean indicating if the supplied string
+// is considered to be a label in ISO standard SQL
+func IsStandardLabel(s string) bool {
+	return false
+}
+
 // IsStandardIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted Standard SQL identifier.
 func IsStandardIdentifier(s string) bool {

@@ -690,6 +690,18 @@ func IsMySQLOperator(s string) bool {
 	return ok
 }
 
+// IsMySQLLabel returns a boolean indicating if the supplied string
+// is considered to be a label in MySQL
+func IsMySQLLabel(s string) bool {
+	if len(s) < 2 {
+		return false
+	}
+	if string(s[len(s)]) == ":" && IsMySQLIdentifier(s[0:len(s)-1]) {
+		return true
+	}
+	return false
+}
+
 // IsMySQLIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted MySQL identifier.
 func IsMySQLIdentifier(s string) bool {

@@ -332,6 +332,18 @@ func IsMariaDBOperator(s string) bool {
 	return ok
 }
 
+// IsMariaDBLabel returns a boolean indicating if the supplied string
+// is considered to be a label in MariaDB
+func IsMariaDBLabel(s string) bool {
+	if len(s) < 2 {
+		return false
+	}
+	if string(s[len(s)]) == ":" && IsMariaDBIdentifier(s[0:len(s)-1]) {
+		return true
+	}
+	return false
+}
+
 // IsMariaDBIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted MariaDB identifier.
 func IsMariaDBIdentifier(s string) bool {

@@ -239,6 +239,12 @@ func IsSQLiteOperator(s string) bool {
 	return ok
 }
 
+// IsSQLiteLabel returns a boolean indicating if the supplied string
+// is considered to be a label in SQLite
+func IsSQLiteLabel(s string) bool {
+	return false
+}
+
 // IsSQLiteIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted PostgreSQL identifier.
 func IsSQLiteIdentifier(s string) bool {

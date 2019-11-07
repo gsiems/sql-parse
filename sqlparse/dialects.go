@@ -148,3 +148,25 @@ func IsOperator(s string, dialect int) bool {
 		return d.IsStandardOperator(s)
 	}
 }
+
+// IsLabel returns true if the supplied string is considered to be
+// a label in the specified SQL dialect
+func IsLabel(s string, dialect int) bool {
+
+	switch dialect {
+	case PostgreSQL:
+		return d.IsPostgreSQLLabel(s)
+	case SQLite:
+		return d.IsSQLiteLabel(s)
+	case MySQL:
+		return d.IsMySQLLabel(s)
+	case Oracle:
+		return d.IsOracleLabel(s)
+	case MSSQL:
+		return d.IsMSSQLLabel(s)
+	case MariaDB:
+		return d.IsMariaDBLabel(s)
+	default:
+		return d.IsStandardLabel(s)
+	}
+}

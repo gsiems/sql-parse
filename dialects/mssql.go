@@ -258,6 +258,18 @@ func IsMSSQLOperator(s string) bool {
 	return ok
 }
 
+// IsMSSQLLabel returns a boolean indicating if the supplied string
+// is considered to be a label in MSSQL
+func IsMSSQLLabel(s string) bool {
+	if len(s) < 2 {
+		return false
+	}
+	if string(s[len(s)]) == ":" && IsMSSQLIdentifier(s[0:len(s)-1]) {
+		return true
+	}
+	return false
+}
+
 // IsMSSQLIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted MSSQL identifier.
 func IsMSSQLIdentifier(s string) bool {

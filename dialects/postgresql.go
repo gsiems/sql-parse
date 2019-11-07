@@ -514,6 +514,24 @@ func IsPostgreSQLOperator(s string) bool {
 	return ok
 }
 
+// IsPostgreSQLLabel returns a boolean indicating if the supplied string
+// is considered to be a label in PostgreSQL
+func IsPostgreSQLLabel(s string) bool {
+	if len(s) < 5 {
+		return false
+	}
+	if s[0:2] != "<<" {
+		return false
+	}
+	if s[len(s)-2:len(s)] != ">>" {
+		return false
+	}
+	if IsPostgreSQLIdentifier(s[2 : len(s)-2]) {
+		return true
+	}
+	return false
+}
+
 // IsPostgreSQLIdentifier returns a boolean indicating if the supplied
 // string is considered to be a non-quoted PostgreSQL identifier.
 func IsPostgreSQLIdentifier(s string) bool {

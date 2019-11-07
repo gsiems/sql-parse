@@ -200,6 +200,12 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 			//  - parsing those strings where there was no space before
 			//      and/or after an operator
 
+			if IsLabel (s, dialect) {
+				tlOut.Push(t)
+				tlOut.UpdateType(LabelToken)
+				continue
+			}
+
 			remainder := s
 			var s2 string
 			ws := t.WhiteSpace()
