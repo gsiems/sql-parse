@@ -720,6 +720,9 @@ func IsMySQLIdentifier(s string) bool {
 	*/
 
 	const identChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$"
+	const digitChars = "0123456789"
+
+	allDigits := true
 
 	chr := strings.Split(s, "")
 	for i := 0; i < len(chr); i++ {
@@ -729,6 +732,13 @@ func IsMySQLIdentifier(s string) bool {
 			return false
 		}
 
+		if !strings.Contains(digitChars, chr[i] {
+			allDigits := false
+		}
+	}
+
+	if allDigits {
+		return false
 	}
 
 	return true
