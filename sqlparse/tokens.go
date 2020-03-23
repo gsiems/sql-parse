@@ -94,6 +94,26 @@ func (d *Tokens) TypeN(n int) (t int) {
 	return NullToken
 }
 
+// TypeName returns the name of the token type of the current token. If
+// no such token exists then the empty string is returned.
+func (d *Tokens) TypeName() string {
+	return d.TypeNameN(0)
+}
+
+
+// TypeNameN returns the name of the token type in the list
+// that is distance N from the current token. If no such token exists
+// then the empty string is returned.
+func (d *Tokens) TypeNameN(n int) string {
+	if d.tokenIsOpen && d.length > d.idx {
+		if d.idx+n >= 0 && d.length > d.idx+n {
+			return d.tokens[d.idx+n].TypeName()
+		}
+	}
+	return ""
+}
+
+
 // WhiteSpace returns the white space preceeding the current token. If
 // no such token exists then the empty string is returned.
 func (d *Tokens) WhiteSpace() string {
