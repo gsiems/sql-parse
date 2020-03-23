@@ -776,8 +776,6 @@ func IsStandardIdentifier(s string) bool {
 	chr := strings.Split(s, "")
 	for i := 0; i < len(chr); i++ {
 
-		//matches := false
-
 		if i == 0 {
 			matches := strings.Contains(firstIdentChars, chr[i])
 			if !matches {
