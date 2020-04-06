@@ -732,8 +732,8 @@ func IsMySQLIdentifier(s string) bool {
 			return false
 		}
 
-		if !strings.Contains(digitChars, chr[i] {
-			allDigits := false
+		if !strings.Contains(digitChars, chr[i]) {
+			allDigits = false
 		}
 	}
 
