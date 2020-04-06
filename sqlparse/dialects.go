@@ -24,7 +24,7 @@ const (
 )
 
 // SQLDialectName returns the string representation of the SQL dialect
-func SQLDialectName(d int) (s string) {
+func SQLDialectName(dialect int) (s string) {
 
 	var names = map[int]string{
 		StandardSQL: "StandardSQL",
@@ -36,14 +36,14 @@ func SQLDialectName(d int) (s string) {
 		MariaDB:     "MariaDB",
 	}
 
-	if s, ok := names[d]; ok {
+	if s, ok := names[dialect]; ok {
 		return s
 	}
 	return ""
 }
 
 // SQLDialect returns the integer value of the SQL dialect
-func SQLDialect(s string) (d int) {
+func SQLDialect(s string) (dialect int) {
 
 	var vals = map[string]int{
 		"StandardSQL": StandardSQL,
@@ -55,10 +55,10 @@ func SQLDialect(s string) (d int) {
 		"MariaDB":     MariaDB,
 	}
 
-	if d, ok := vals[s]; ok {
-		return d
+	if dialect, ok := vals[s]; ok {
+		return dialect
 	}
-	return 0
+	return StandardSQL
 }
 
 // IsKeyword returns true if the supplied string is defined as a
