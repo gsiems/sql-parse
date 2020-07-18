@@ -19,45 +19,6 @@ func ParseStatements(stmts string, dialect int) Tokens {
 	var chrs Tokens
 	var tl Tokens
 
-	/*
-	   BacktickQuotedToken
-	   BindParameterToken
-	   BlockCommentToken
-	   BracketQuotedToken
-	   DoubleQuotedToken
-	   IdentToken
-	   KeywordToken
-	   LabelToken
-	   LineCommentToken
-	   NullToken
-	   NumericToken
-	   OperatorToken
-	   OtherToken
-	   PoundLineCommentToken
-	   SingleQuotedToken
-	   WhiteSpaceToken
-	*/
-	/*
-		var tokenStart = map[string]int{
-			"\"": DoubleQuotedToken,
-			"'":  SingleQuotedToken,
-			//"`":  BacktickQuotedToken,   // dialect dependent
-			//"[":  BracketQuotedToken,    // dialect dependent
-			//"#":  PoundLineCommentToken, // dialect dependent
-			//"/*": BlockCommentToken,     // multi-char
-			//"--": LineCommentToken,      // multi-char
-		}
-	*/
-	var tokenEnd = map[int]string{
-		BacktickQuotedToken:   "`",
-		BlockCommentToken:     "*/",
-		BracketQuotedToken:    "]",
-		DoubleQuotedToken:     "\"",
-		LineCommentToken:      "\n",
-		PoundLineCommentToken: "\n",
-		SingleQuotedToken:     "'",
-	}
-
 	chrs.Init(stmts)
 	for {
 		ch := chrs.Next()
@@ -69,23 +30,23 @@ func ParseStatements(stmts string, dialect int) Tokens {
 
 		// if we are in a *delimited* token, check for the ending
 		tokenType := tl.Type()
-		switch tokenType {
-		case BacktickQuotedToken, BracketQuotedToken, DoubleQuotedToken, SingleQuotedToken:
+		switch {
+		case isQuotedToken(tokenType):
 			tl.Concat(s)
-			if te, ok := tokenEnd[tokenType]; ok {
-				if s == te {
-					tl.CloseToken()
-				}
+			if isTokenEnd(s, tokenType) {
+				tl.CloseToken()
 			}
 			continue
-		case LineCommentToken, PoundLineCommentToken:
-			if s == "\n" {
+
+		case isLineCommentToken(tokenType):
+			if isTokenEnd(s, tokenType) {
 				tl.SetType(WhiteSpaceToken)
 			}
 			tl.Concat(s)
 			continue
-		case BlockCommentToken:
-			if s == "*" && chrs.Peek() == "/" {
+
+		case isBlockCommentToken(tokenType):
+			if isTokenEnd(s+chrs.Peek(), tokenType) {
 				cn := chrs.Next()
 				tl.Concat(s + cn.Value())
 				tl.CloseToken()
@@ -98,12 +59,12 @@ func ParseStatements(stmts string, dialect int) Tokens {
 
 		// check for the beginning of a *delimited* token
 		tt := chkTokenStart(s, chrs.Peek(), dialect)
-		switch tt {
-		case DoubleQuotedToken, SingleQuotedToken, PoundLineCommentToken, BacktickQuotedToken, BracketQuotedToken:
+		switch {
+		case isQuotedToken(tt):
 			tl.Extend(tt)
 			tl.Concat(s)
 			continue
-		case BlockCommentToken, LineCommentToken:
+		case isCommentToken(tt):
 			tl.SetType(tt)
 			cn := chrs.Next()
 			tl.Concat(s + cn.Value())
@@ -252,6 +213,62 @@ func parsePassThree(tlIn Tokens, dialect int) (tlOut Tokens) {
 	return tlOut
 }
 
+func isQuotedToken(tokenType int) bool {
+	switch tokenType {
+	case DoubleQuotedToken, SingleQuotedToken, BacktickQuotedToken, BracketQuotedToken:
+		return true
+	}
+	return false
+}
+
+func isLineCommentToken(tokenType int) bool {
+	switch tokenType {
+	case LineCommentToken, PoundLineCommentToken:
+		return true
+	}
+	return false
+}
+
+func isBlockCommentToken(tokenType int) bool {
+	switch tokenType {
+	case BlockCommentToken:
+		return true
+	}
+	return false
+}
+
+func isCommentToken(tokenType int) bool {
+
+	if isLineCommentToken(tokenType) {
+		return true
+	}
+	if isBlockCommentToken(tokenType) {
+		return true
+	}
+	return false
+}
+
+func isTokenEnd(s string, tokenType int) bool {
+
+	var tokenEnd = map[int]string{
+		BacktickQuotedToken:   "`",
+		BlockCommentToken:     "*/",
+		BracketQuotedToken:    "]",
+		DoubleQuotedToken:     "\"",
+		LineCommentToken:      "\n",
+		PoundLineCommentToken: "\n",
+		SingleQuotedToken:     "'",
+	}
+
+	if te, ok := tokenEnd[tokenType]; ok {
+		if s == te {
+			return true
+		}
+	}
+
+	return false
+}
+
 func splitOnOperator(s string, dialect int) (pre, remainder string) {
 
 	maxOperatorLen := 3
@@ -361,14 +378,6 @@ func isWhiteSpaceChar(s string) bool {
 // isNumericString determines whether or not the supplied string is
 // considered to be a valid number
 func isNumericString(s string) bool {
-	const numChars = "0123456789."
-	// "."
-	// "E"
-	// split upper on "E"
-	// foreach check
-	//   first can be "+", "-", ".", or digit
-	//   remainder can be "." or digit
-	//   no more than one "." or "E"
 
 	if strings.Count(strings.ToUpper(s), "E") > 1 {
 		return false
@@ -384,7 +393,9 @@ func isNumericString(s string) bool {
 }
 
 func isNumber(s string) bool {
-	const numChars = "0123456789."
+	const numChars = "0123456789"
+
+	decimalPoint := "."
 
 	if len(s) == 1 {
 		if s == "+" || s == "-" {
@@ -392,13 +403,13 @@ func isNumber(s string) bool {
 		}
 	}
 
-	if strings.Count(s, ".") > 1 {
+	if strings.Count(s, decimalPoint) > 1 {
 		return false
 	}
 
 	chr := strings.Split(s, "")
 	for i := 0; i < len(chr); i++ {
-		matches := strings.Contains(numChars, chr[i])
+		matches := strings.Contains(numChars, chr[i]) || chr[i] == decimalPoint
 
 		if !matches {
 			if i > 0 {
