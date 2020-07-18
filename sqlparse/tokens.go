@@ -100,7 +100,6 @@ func (d *Tokens) TypeName() string {
 	return d.TypeNameN(0)
 }
 
-
 // TypeNameN returns the name of the token type in the list
 // that is distance N from the current token. If no such token exists
 // then the empty string is returned.
@@ -112,7 +111,6 @@ func (d *Tokens) TypeNameN(n int) string {
 	}
 	return ""
 }
-
 
 // WhiteSpace returns the white space preceeding the current token. If
 // no such token exists then the empty string is returned.
