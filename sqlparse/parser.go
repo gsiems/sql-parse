@@ -393,6 +393,9 @@ func isNumericString(s string) bool {
 }
 
 func isNumber(s string) bool {
+   _, err := strconv.ParseFloat(s, 64)
+   return err == nil
+/*
 	const numChars = "0123456789"
 
 	decimalPoint := "."
@@ -422,6 +425,7 @@ func isNumber(s string) bool {
 	}
 
 	return true
+*/
 }
 
 func isBindVar(s string) bool {
