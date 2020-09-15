@@ -2,6 +2,7 @@
 package sqlparse
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -393,39 +394,39 @@ func isNumericString(s string) bool {
 }
 
 func isNumber(s string) bool {
-   _, err := strconv.ParseFloat(s, 64)
-   return err == nil
-/*
-	const numChars = "0123456789"
+	_, err := strconv.ParseFloat(s, 64)
+	return err == nil
+	/*
+		const numChars = "0123456789"
 
-	decimalPoint := "."
+		decimalPoint := "."
 
-	if len(s) == 1 {
-		if s == "+" || s == "-" {
+		if len(s) == 1 {
+			if s == "+" || s == "-" {
+				return false
+			}
+		}
+
+		if strings.Count(s, decimalPoint) > 1 {
 			return false
 		}
-	}
 
-	if strings.Count(s, decimalPoint) > 1 {
-		return false
-	}
+		chr := strings.Split(s, "")
+		for i := 0; i < len(chr); i++ {
+			matches := strings.Contains(numChars, chr[i]) || chr[i] == decimalPoint
 
-	chr := strings.Split(s, "")
-	for i := 0; i < len(chr); i++ {
-		matches := strings.Contains(numChars, chr[i]) || chr[i] == decimalPoint
-
-		if !matches {
-			if i > 0 {
-				return false
-			}
-			if !(chr[i] == "+" || chr[i] == "-") {
-				return false
+			if !matches {
+				if i > 0 {
+					return false
+				}
+				if !(chr[i] == "+" || chr[i] == "-") {
+					return false
+				}
 			}
 		}
-	}
 
-	return true
-*/
+		return true
+	*/
 }
 
 func isBindVar(s string) bool {
